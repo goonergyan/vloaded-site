@@ -1,0 +1,1030 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>vLoaded</title>
+    <meta
+      name="description"
+      content="Minecraft PvP tier profile for vLoaded."
+    />:root {
+  --bg: #f7f8fc;
+  --bg-soft: #eef4f2;
+  --surface: #ffffff;
+  --text: #160f17;const DISCORD_URL = "";
+
+const tierProfiles = {
+  pvp: {
+    title: "PvP Tiers",
+    ign: "vLoaded",
+    highlight: "Top 2824 on PvP Tiers",
+    rank: "Combat Cadet",
+    score: "30 points",
+    note: "Retired",
+    kits: [
+      { name: "Crystal", tier: "LT3", icon: "CR" },
+      { name: "NethPot", tier: "LT3", icon: "NP" },
+      { name: "UHC", tier: "LT3", icon: "UH" },
+      { name: "SMP", tier: "LT3", icon: "SP" },
+      { name: "Pearl", tier: "LT3", icon: "PR" },
+      { name: "Axe", tier: "-", icon: "?" },
+      { name: "Mace", tier: "-", icon: "?" },
+      { name: "Cart", tier: "-", icon: "?" },
+    ],
+  },
+  mc: {
+    title: "MC Tiers",
+    ign: "vLoaded",
+    highlight: "Overall 6083 on MC Tiers",
+    rank: "Overall 6083",
+    score: "22 points",
+    note: "Active profile",
+    kits: [
+      { name: "Sword", tier: "HT3", icon: "SW" },
+      { name: "Pot", tier: "LT3", icon: "PT" },
+      { name: "Pearl", tier: "LT3", icon: "PR" },
+      { name: "Crystal", tier: "-", icon: "?" },
+      { name: "NethPot", tier: "-", icon: "?" },
+      { name: "Axe", tier: "-", icon: "?" },
+      { name: "UHC", tier: "-", icon: "?" },
+      { name: "Cart", tier: "-", icon: "?" },
+    ],
+  },
+};
+
+const root = document.documentElement;
+const header = document.querySelector("[data-header]");
+const menu = document.querySelector("[data-mobile-menu]");
+const menuToggle = document.querySelector("[data-menu-toggle]");
+const themeToggle = document.querySelector("[data-theme-toggle]");
+const themeIcon = document.querySelector("[data-theme-icon]");
+const tierTabs = document.querySelectorAll("[data-tier-profile]");
+const tierPanel = document.querySelector("[data-tier-profile-panel]");
+const discordLinks = document.querySelectorAll("[data-discord-link]");
+
+function updateDiscordLinks() {
+  discordLinks.forEach((link) => {
+    if (DISCORD_URL) {
+      link.href = DISCORD_URL;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "Discord";
+    }
+  });
+}
+
+function renderTierProfile(key = "pvp") {
+  const profile = tierProfiles[key];
+
+  tierPanel.innerHTML = `
+    <div class="tier-head">
+      <div>
+        <h3>${profile.title}</h3>
+        <p>${profile.note}</p>
+      </div>
+      <div class="ign">IGN: ${profile.ign}</div>
+    </div>
+    <div class="tier-highlight">${profile.highlight}</div>
+    <div class="tier-meta">
+      <div class="tier-rank">
+        <span>Rank</span>
+        <strong>${profile.rank}</strong>
+      </div>
+      <div class="tier-rank">
+        <span>Overall</span>
+        <strong>${profile.score}</strong>
+      </div>
+    </div>
+    <div class="tier-grid">
+      ${profile.kits
+        .map(
+          (kit) => `
+            <article class="tier-kit ${kit.tier === "-" ? "is-empty" : ""}">
+              <span class="kit-icon">${kit.icon}</span>
+              <div>
+                <p>${kit.name}</p>
+                <strong>${kit.tier}</strong>
+              </div>
+            </article>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function setTheme(mode) {
+  root.classList.toggle("dark", mode === "dark");
+  themeIcon.textContent = mode === "dark" ? "Sun" : "Moon";
+  localStorage.setItem("vloaded-theme", mode);
+}
+
+function initTheme() {
+  const stored = localStorage.getItem("vloaded-theme");
+  const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+  setTheme(stored || preferred);
+}
+
+window.addEventListener("scroll", () => {
+  header.classList.toggle("is-scrolled", window.scrollY > 12);
+});
+
+menuToggle.addEventListener("click", () => {
+  const isOpen = menu.classList.toggle("is-open");
+  menu.setAttribute("aria-hidden", String(!isOpen));
+});
+
+menu.addEventListener("click", (event) => {
+  if (event.target.matches("a")) {
+    menu.classList.remove("is-open");
+    menu.setAttribute("aria-hidden", "true");
+  }
+});
+
+themeToggle.addEventListener("click", () => {
+  setTheme(root.classList.contains("dark") ? "light" : "dark");
+});
+
+tierTabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    tierTabs.forEach((item) => item.classList.remove("is-active"));
+    tab.classList.add("is-active");
+    renderTierProfile(tab.dataset.tierProfile);
+  });
+});
+
+function startHeroCanvas() {
+  const canvas = document.getElementById("hero-canvas");
+  const ctx = canvas.getContext("2d");
+  const colors = ["#b72163", "#4d39b8", "#12846f", "#b86f00", "#ffffff"];
+  let width = 0;
+  let height = 0;
+  let blocks = [];
+  let pointerX = 0.5;
+  let pointerY = 0.5;
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    blocks = Array.from({ length: Math.min(58, Math.floor(width / 18)) }, (_, index) => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      size: 6 + Math.random() * 18,
+      speed: 0.15 + Math.random() * 0.45,
+      drift: -0.25 + Math.random() * 0.5,
+      color: colors[index % colors.length],
+      alpha: 0.1 + Math.random() * 0.2,
+    }));
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, width, height);
+    const isDark = root.classList.contains("dark");
+    ctx.fillStyle = isDark ? "rgba(9, 8, 14, 0.66)" : "rgba(247, 248, 252, 0.72)";
+    ctx.fillRect(0, 0, width, height);
+
+    const offsetX = (pointerX - 0.5) * 28;
+    const offsetY = (pointerY - 0.5) * 20;
+
+    blocks.forEach((block) => {
+      block.y += block.speed;
+      block.x += block.drift;
+
+      if (block.y > height + 30) {
+        block.y = -30;
+        block.x = Math.random() * width;
+      }
+
+      ctx.save();
+      ctx.translate(block.x + offsetX, block.y + offsetY);
+      ctx.rotate((block.x + block.y) * 0.002);
+      ctx.globalAlpha = block.alpha;
+      ctx.fillStyle = block.color;
+      ctx.fillRect(-block.size / 2, -block.size / 2, block.size, block.size);
+      ctx.strokeStyle = isDark ? "rgba(255,255,255,0.22)" : "rgba(22,15,23,0.18)";
+      ctx.strokeRect(-block.size / 2, -block.size / 2, block.size, block.size);
+      ctx.restore();
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener("resize", resize);
+  window.addEventListener("pointermove", (event) => {
+    pointerX = event.clientX / Math.max(width, 1);
+    pointerY = event.clientY / Math.max(height, 1);
+  });
+
+  resize();
+  draw();
+}
+
+initTheme();
+updateDiscordLinks();
+renderTierProfile();
+startHeroCanvas();
+
+  --muted: #645b67;
+  --rose: #b72163;
+  --violet: #4d39b8;
+  --mint: #12846f;
+  --amber: #b86f00;
+  --line: #ded7e8;
+  --line-strong: #c9bfd7;
+  --shadow: rgba(32, 19, 49, 0.12);
+  --nav: rgba(247, 248, 252, 0.82);
+}
+
+html.dark {
+  --bg: #09080e;
+  --bg-soft: #10151a;
+  --surface: #14121c;
+  --text: #f4eff8;
+  --muted: #c9c0d0;
+  --rose: #ff5d9c;
+  --violet: #90a8ff;
+  --mint: #4ed1b5;
+  --amber: #ffc15a;
+  --line: #332b3f;
+  --line-strong: #554766;
+  --shadow: rgba(0, 0, 0, 0.28);
+  --nav: rgba(9, 8, 14, 0.82);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    linear-gradient(90deg, transparent 0 23px, rgba(77, 57, 184, 0.04) 24px),
+    linear-gradient(0deg, transparent 0 23px, rgba(18, 132, 111, 0.035) 24px),
+    var(--bg);
+  background-size: 24px 24px;
+  color: var(--text);
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  color: inherit;
+  font: inherit;
+}
+
+#hero-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 72px;
+  padding: 0 1.25rem;
+  background: var(--nav);
+  border-bottom: 1px solid transparent;
+  backdrop-filter: blur(14px);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.site-header.is-scrolled {
+  border-color: var(--line);
+  box-shadow: 0 10px 28px var(--shadow);
+}
+
+.brand {
+  color: var(--rose);
+  font-family: "Brush Script MT", "Segoe Script", cursive;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.desktop-nav {
+  display: none;
+  align-items: center;
+  gap: 1rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.desktop-nav a {
+  padding: 0.45rem 0;
+  transition: color 160ms ease;
+}
+
+.desktop-nav a:hover,
+.desktop-nav a:focus-visible {
+  color: var(--rose);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon-button,
+.menu-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  cursor: pointer;
+}
+
+.icon-button {
+  padding: 0 0.6rem;
+  color: var(--violet);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.menu-button {
+  flex-direction: column;
+  gap: 5px;
+}
+
+.menu-button span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--rose);
+}
+
+.mobile-menu {
+  position: fixed;
+  inset: 72px 0 auto 0;
+  z-index: 18;
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem 1.25rem;
+  background: var(--nav);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(16px);
+  transform: translateY(-12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+.mobile-menu.is-open {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-menu a {
+  padding: 0.9rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.section-band {
+  position: relative;
+  z-index: 1;
+}
+
+.container {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.hero {
+  display: grid;
+  min-height: 100svh;
+  place-items: center;
+  overflow: hidden;
+  padding: 6rem 1rem 5rem;
+}
+
+.hero::after {
+  position: absolute;
+  inset: auto 0 0;
+  height: 35%;
+  background: linear-gradient(180deg, transparent, var(--bg));
+  content: "";
+  pointer-events: none;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  width: min(760px, 100%);
+  text-align: center;
+}
+
+.eyebrow,
+.section-label,
+.panel-kicker {
+  margin: 0 0 0.65rem;
+  color: var(--mint);
+  font-size: 0.86rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 0;
+  color: var(--rose);
+  font-family: "Brush Script MT", "Segoe Script", cursive;
+  font-size: 5.5rem;
+  font-weight: 400;
+  line-height: 0.95;
+  text-shadow: 0 14px 42px rgba(183, 33, 99, 0.26);
+}
+
+.tagline {
+  width: min(520px, 100%);
+  margin: 1rem auto 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+.primary-link,
+.secondary-link,
+.contact-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 900;
+}
+
+.primary-link {
+  background: var(--rose);
+  color: #fff;
+  box-shadow: 0 10px 26px rgba(183, 33, 99, 0.28);
+}
+
+.secondary-link,
+.contact-button {
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--violet);
+}
+
+.scroll-cue {
+  position: absolute;
+  right: 1rem;
+  bottom: 1.25rem;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 900;
+  animation: scrollPulse 1.7s ease-in-out infinite;
+}
+
+.chevron {
+  display: block;
+  width: 11px;
+  height: 11px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.tiers-section {
+  padding: 5rem 0;
+}
+
+.about-section,
+.contact-section {
+  padding: 5rem 0;
+  background: color-mix(in srgb, var(--bg-soft) 78%, transparent);
+}
+
+.section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-heading h2,
+.about-layout h2,
+.contact-layout h2 {
+  margin: 0;
+  font-size: 2.8rem;
+  line-height: 1;
+}
+
+.tabs,
+.tier-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.tab,
+.tier-tab {
+  min-height: 42px;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  font-weight: 850;
+}
+
+.tab.is-active,
+.tier-tab.is-active {
+  border-color: color-mix(in srgb, var(--rose) 55%, var(--line));
+  color: var(--rose);
+  box-shadow: 0 8px 22px var(--shadow);
+}
+
+.work-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.work-card {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 12px 34px var(--shadow);
+}
+
+.work-visual {
+  position: relative;
+  display: grid;
+  min-height: 210px;
+  aspect-ratio: 16 / 9;
+  place-items: center;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(183, 33, 99, 0.14) 0 24%, transparent 24% 50%, rgba(18, 132, 111, 0.16) 50% 74%, transparent 74%),
+    repeating-linear-gradient(45deg, rgba(77, 57, 184, 0.14) 0 8px, transparent 8px 18px),
+    var(--bg-soft);
+  background-size: 140px 140px, 36px 36px, auto;
+}
+
+.work-visual::before,
+.work-visual::after {
+  position: absolute;
+  content: "";
+}
+
+.work-visual::before {
+  width: 38%;
+  height: 44%;
+  border: 2px solid color-mix(in srgb, var(--rose) 60%, transparent);
+  transform: skewX(-12deg);
+}
+
+.work-visual::after {
+  width: 26px;
+  height: 26px;
+  background: var(--amber);
+  box-shadow:
+    34px 0 0 var(--mint),
+    -34px 0 0 var(--violet),
+    0 34px 0 var(--rose),
+    0 -34px 0 var(--line-strong);
+}
+
+.work-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.work-meta h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.badge {
+  flex: 0 0 auto;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--mint);
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.about-layout,
+.contact-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.about-copy,
+.contact-layout p {
+  margin: 1rem 0 0;
+  max-width: 650px;
+  color: var(--muted);
+  font-size: 1.04rem;
+  line-height: 1.75;
+}
+
+.listen-panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 1.25rem;
+  box-shadow: 0 12px 34px var(--shadow);
+}
+
+.focus-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.focus-list span {
+  min-height: 44px;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-weight: 850;
+}
+
+.tier-profile {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 12px 34px var(--shadow);
+  overflow: hidden;
+}
+
+.tier-head {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(90deg, rgba(183, 33, 99, 0.08), transparent 42%),
+    linear-gradient(270deg, rgba(18, 132, 111, 0.1), transparent 48%);
+}
+
+.tier-head h3 {
+  margin: 0;
+  font-size: 1.55rem;
+}
+
+.tier-head p {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+}
+
+.tier-highlight {
+  margin: 1rem 1rem 0;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--rose) 54%, var(--line));
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(183, 33, 99, 0.16), transparent 58%),
+    color-mix(in srgb, var(--surface) 86%, transparent);
+  color: var(--rose);
+  font-size: 1.25rem;
+  font-weight: 950;
+}
+
+.tier-meta {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.tier-rank {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 54px;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-soft) 58%, transparent);
+}
+
+.tier-rank span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.tier-rank strong {
+  color: var(--rose);
+  font-size: 1.12rem;
+}
+
+.ign {
+  align-self: start;
+  justify-self: start;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--violet);
+  font-weight: 950;
+}
+
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.tier-kit {
+  display: grid;
+  gap: 0.8rem;
+  min-height: 128px;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-soft) 58%, transparent);
+}
+
+.tier-kit.is-empty {
+  opacity: 0.55;
+}
+
+.kit-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 2px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--rose);
+  font-size: 0.72rem;
+  font-weight: 950;
+  transform: rotate(-4deg);
+}
+
+.tier-kit p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.tier-kit strong {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--text);
+  font-size: 1.25rem;
+}
+
+.contact-layout {
+  border-top: 1px solid var(--line);
+  padding-top: 2rem;
+}
+
+.contact-button {
+  justify-self: start;
+}
+
+@keyframes scrollPulse {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.75;
+  }
+
+  50% {
+    transform: translateY(7px);
+    opacity: 1;
+  }
+}
+
+@media (min-width: 680px) {
+  .site-header {
+    padding: 0 2rem;
+  }
+
+  .hero h1 {
+    font-size: 8.5rem;
+  }
+
+  .tier-head,
+  .tier-meta,
+  .contact-layout {
+    grid-template-columns: 1fr auto;
+  }
+
+  .ign {
+    justify-self: end;
+  }
+
+  .tier-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 940px) {
+  .desktop-nav {
+    display: flex;
+  }
+
+  .menu-button {
+    display: none;
+  }
+
+  .hero h1 {
+    font-size: 11rem;
+  }
+
+  .about-layout {
+    grid-template-columns: 1.4fr 0.8fr;
+  }
+
+  .tier-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <canvas id="hero-canvas" aria-hidden="true"></canvas>
+
+    <header class="site-header" data-header>
+      <a class="brand" href="#top" aria-label="vLoaded home">vLoaded</a>
+      <nav class="desktop-nav" aria-label="Primary navigation">
+        <a href="#tiers">Tiers</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="header-actions">
+        <button class="icon-button" type="button" data-theme-toggle aria-label="Toggle theme">
+          <span data-theme-icon>Moon</span>
+        </button>
+        <button class="menu-button" type="button" data-menu-toggle aria-label="Toggle menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </header>
+
+    <div class="mobile-menu" data-mobile-menu aria-hidden="true">
+      <a href="#tiers">Tiers</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </div>
+
+    <main id="top">
+      <section class="hero section-band">
+        <div class="hero-inner">
+          <p class="eyebrow">Minecraft PvP tiers</p>
+          <h1>vLoaded</h1>
+          <p class="tagline">Tier profile, rankings, and links in one place.</p>
+          <div class="hero-actions">
+            <a class="primary-link" href="#tiers">View tiers</a>
+            <a class="secondary-link" data-discord-link href="#contact">vLoaded</a>
+          </div>
+        </div>
+        <a class="scroll-cue" href="#tiers" aria-label="Scroll to tiers">
+          <span>Scroll</span>
+          <span class="chevron"></span>
+        </a>
+      </section>
+
+      <section id="about" class="section-band about-section">
+        <div class="container about-layout">
+          <div>
+            <p class="section-label">About</p>
+            <h2>vLoaded</h2>
+            <p class="about-copy">
+              I play Minecraft PvP and track my progress across tier systems.
+              This site keeps both profiles easy to find and updates cleanly
+              when my tiers change.
+            </p>
+          </div>
+          <div class="listen-panel">
+            <p class="panel-kicker">Now focused on</p>
+            <div class="focus-list">
+              <span>Crystal</span>
+              <span>Sword</span>
+              <span>UHC</span>
+              <span>Cart</span>
+              <span>Movement</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tiers" class="section-band tiers-section">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">Rankings</p>
+            <h2>Competitive</h2>
+          </div>
+
+          <div class="tier-switch" role="tablist" aria-label="Tier profiles">
+            <button class="tier-tab is-active" type="button" data-tier-profile="pvp">
+              PvP Tiers
+            </button>
+            <button class="tier-tab" type="button" data-tier-profile="mc">
+              MC Tiers
+            </button>
+          </div>
+
+          <div class="tier-profile" data-tier-profile-panel></div>
+        </div>
+      </section>
+
+      <section id="contact" class="section-band contact-section">
+        <div class="container contact-layout">
+          <div>
+            <p class="section-label">Contact</p>
+            <h2>Let's talk</h2>
+            <p>Drop your Discord link here when you want this button connected.</p>
+          </div>
+          <a class="contact-button" data-discord-link href="#contact">vLoaded</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
