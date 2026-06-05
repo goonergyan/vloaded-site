@@ -7,231 +7,13 @@
     <meta
       name="description"
       content="Minecraft PvP tier profile for vLoaded."
-    />:root {
+    />
+    <style>
+:root {
   --bg: #f7f8fc;
   --bg-soft: #eef4f2;
   --surface: #ffffff;
-  --text: #160f17;const DISCORD_URL = "";
-
-const tierProfiles = {
-  pvp: {
-    title: "PvP Tiers",
-    ign: "vLoaded",
-    highlight: "Top 2824 on PvP Tiers",
-    rank: "Combat Cadet",
-    score: "30 points",
-    note: "Retired",
-    kits: [
-      { name: "Crystal", tier: "LT3", icon: "CR" },
-      { name: "NethPot", tier: "LT3", icon: "NP" },
-      { name: "UHC", tier: "LT3", icon: "UH" },
-      { name: "SMP", tier: "LT3", icon: "SP" },
-      { name: "Pearl", tier: "LT3", icon: "PR" },
-      { name: "Axe", tier: "-", icon: "?" },
-      { name: "Mace", tier: "-", icon: "?" },
-      { name: "Cart", tier: "-", icon: "?" },
-    ],
-  },
-  mc: {
-    title: "MC Tiers",
-    ign: "vLoaded",
-    highlight: "Overall 6083 on MC Tiers",
-    rank: "Overall 6083",
-    score: "22 points",
-    note: "Active profile",
-    kits: [
-      { name: "Sword", tier: "HT3", icon: "SW" },
-      { name: "Pot", tier: "LT3", icon: "PT" },
-      { name: "Pearl", tier: "LT3", icon: "PR" },
-      { name: "Crystal", tier: "-", icon: "?" },
-      { name: "NethPot", tier: "-", icon: "?" },
-      { name: "Axe", tier: "-", icon: "?" },
-      { name: "UHC", tier: "-", icon: "?" },
-      { name: "Cart", tier: "-", icon: "?" },
-    ],
-  },
-};
-
-const root = document.documentElement;
-const header = document.querySelector("[data-header]");
-const menu = document.querySelector("[data-mobile-menu]");
-const menuToggle = document.querySelector("[data-menu-toggle]");
-const themeToggle = document.querySelector("[data-theme-toggle]");
-const themeIcon = document.querySelector("[data-theme-icon]");
-const tierTabs = document.querySelectorAll("[data-tier-profile]");
-const tierPanel = document.querySelector("[data-tier-profile-panel]");
-const discordLinks = document.querySelectorAll("[data-discord-link]");
-
-function updateDiscordLinks() {
-  discordLinks.forEach((link) => {
-    if (DISCORD_URL) {
-      link.href = DISCORD_URL;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.textContent = "Discord";
-    }
-  });
-}
-
-function renderTierProfile(key = "pvp") {
-  const profile = tierProfiles[key];
-
-  tierPanel.innerHTML = `
-    <div class="tier-head">
-      <div>
-        <h3>${profile.title}</h3>
-        <p>${profile.note}</p>
-      </div>
-      <div class="ign">IGN: ${profile.ign}</div>
-    </div>
-    <div class="tier-highlight">${profile.highlight}</div>
-    <div class="tier-meta">
-      <div class="tier-rank">
-        <span>Rank</span>
-        <strong>${profile.rank}</strong>
-      </div>
-      <div class="tier-rank">
-        <span>Overall</span>
-        <strong>${profile.score}</strong>
-      </div>
-    </div>
-    <div class="tier-grid">
-      ${profile.kits
-        .map(
-          (kit) => `
-            <article class="tier-kit ${kit.tier === "-" ? "is-empty" : ""}">
-              <span class="kit-icon">${kit.icon}</span>
-              <div>
-                <p>${kit.name}</p>
-                <strong>${kit.tier}</strong>
-              </div>
-            </article>
-          `,
-        )
-        .join("")}
-    </div>
-  `;
-}
-
-function setTheme(mode) {
-  root.classList.toggle("dark", mode === "dark");
-  themeIcon.textContent = mode === "dark" ? "Sun" : "Moon";
-  localStorage.setItem("vloaded-theme", mode);
-}
-
-function initTheme() {
-  const stored = localStorage.getItem("vloaded-theme");
-  const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
-  setTheme(stored || preferred);
-}
-
-window.addEventListener("scroll", () => {
-  header.classList.toggle("is-scrolled", window.scrollY > 12);
-});
-
-menuToggle.addEventListener("click", () => {
-  const isOpen = menu.classList.toggle("is-open");
-  menu.setAttribute("aria-hidden", String(!isOpen));
-});
-
-menu.addEventListener("click", (event) => {
-  if (event.target.matches("a")) {
-    menu.classList.remove("is-open");
-    menu.setAttribute("aria-hidden", "true");
-  }
-});
-
-themeToggle.addEventListener("click", () => {
-  setTheme(root.classList.contains("dark") ? "light" : "dark");
-});
-
-tierTabs.forEach((tab) => {
-  tab.addEventListener("click", () => {
-    tierTabs.forEach((item) => item.classList.remove("is-active"));
-    tab.classList.add("is-active");
-    renderTierProfile(tab.dataset.tierProfile);
-  });
-});
-
-function startHeroCanvas() {
-  const canvas = document.getElementById("hero-canvas");
-  const ctx = canvas.getContext("2d");
-  const colors = ["#b72163", "#4d39b8", "#12846f", "#b86f00", "#ffffff"];
-  let width = 0;
-  let height = 0;
-  let blocks = [];
-  let pointerX = 0.5;
-  let pointerY = 0.5;
-
-  function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = Math.floor(width * dpr);
-    canvas.height = Math.floor(height * dpr);
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    blocks = Array.from({ length: Math.min(58, Math.floor(width / 18)) }, (_, index) => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      size: 6 + Math.random() * 18,
-      speed: 0.15 + Math.random() * 0.45,
-      drift: -0.25 + Math.random() * 0.5,
-      color: colors[index % colors.length],
-      alpha: 0.1 + Math.random() * 0.2,
-    }));
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, width, height);
-    const isDark = root.classList.contains("dark");
-    ctx.fillStyle = isDark ? "rgba(9, 8, 14, 0.66)" : "rgba(247, 248, 252, 0.72)";
-    ctx.fillRect(0, 0, width, height);
-
-    const offsetX = (pointerX - 0.5) * 28;
-    const offsetY = (pointerY - 0.5) * 20;
-
-    blocks.forEach((block) => {
-      block.y += block.speed;
-      block.x += block.drift;
-
-      if (block.y > height + 30) {
-        block.y = -30;
-        block.x = Math.random() * width;
-      }
-
-      ctx.save();
-      ctx.translate(block.x + offsetX, block.y + offsetY);
-      ctx.rotate((block.x + block.y) * 0.002);
-      ctx.globalAlpha = block.alpha;
-      ctx.fillStyle = block.color;
-      ctx.fillRect(-block.size / 2, -block.size / 2, block.size, block.size);
-      ctx.strokeStyle = isDark ? "rgba(255,255,255,0.22)" : "rgba(22,15,23,0.18)";
-      ctx.strokeRect(-block.size / 2, -block.size / 2, block.size, block.size);
-      ctx.restore();
-    });
-
-    requestAnimationFrame(draw);
-  }
-
-  window.addEventListener("resize", resize);
-  window.addEventListener("pointermove", (event) => {
-    pointerX = event.clientX / Math.max(width, 1);
-    pointerY = event.clientY / Math.max(height, 1);
-  });
-
-  resize();
-  draw();
-}
-
-initTheme();
-updateDiscordLinks();
-renderTierProfile();
-startHeroCanvas();
-
+  --text: #160f17;
   --muted: #645b67;
   --rose: #b72163;
   --violet: #4d39b8;
@@ -922,7 +704,7 @@ button {
   }
 }
 
-    <link rel="stylesheet" href="./styles.css" />
+    </style>
   </head>
   <body>
     <canvas id="hero-canvas" aria-hidden="true"></canvas>
@@ -1025,6 +807,229 @@ button {
       </section>
     </main>
 
-    <script src="./app.js"></script>
+    <script>
+const DISCORD_URL = "";
+
+const tierProfiles = {
+  pvp: {
+    title: "PvP Tiers",
+    ign: "vLoaded",
+    highlight: "Top 2824 on PvP Tiers",
+    rank: "Combat Cadet",
+    score: "30 points",
+    note: "Retired",
+    kits: [
+      { name: "Crystal", tier: "LT3", icon: "CR" },
+      { name: "NethPot", tier: "LT3", icon: "NP" },
+      { name: "UHC", tier: "LT3", icon: "UH" },
+      { name: "SMP", tier: "LT3", icon: "SP" },
+      { name: "Pearl", tier: "LT3", icon: "PR" },
+      { name: "Axe", tier: "-", icon: "?" },
+      { name: "Mace", tier: "-", icon: "?" },
+      { name: "Cart", tier: "-", icon: "?" },
+    ],
+  },
+  mc: {
+    title: "MC Tiers",
+    ign: "vLoaded",
+    highlight: "Overall 6083 on MC Tiers",
+    rank: "Overall 6083",
+    score: "22 points",
+    note: "Active profile",
+    kits: [
+      { name: "Sword", tier: "HT3", icon: "SW" },
+      { name: "Pot", tier: "LT3", icon: "PT" },
+      { name: "Pearl", tier: "LT3", icon: "PR" },
+      { name: "Crystal", tier: "-", icon: "?" },
+      { name: "NethPot", tier: "-", icon: "?" },
+      { name: "Axe", tier: "-", icon: "?" },
+      { name: "UHC", tier: "-", icon: "?" },
+      { name: "Cart", tier: "-", icon: "?" },
+    ],
+  },
+};
+
+const root = document.documentElement;
+const header = document.querySelector("[data-header]");
+const menu = document.querySelector("[data-mobile-menu]");
+const menuToggle = document.querySelector("[data-menu-toggle]");
+const themeToggle = document.querySelector("[data-theme-toggle]");
+const themeIcon = document.querySelector("[data-theme-icon]");
+const tierTabs = document.querySelectorAll("[data-tier-profile]");
+const tierPanel = document.querySelector("[data-tier-profile-panel]");
+const discordLinks = document.querySelectorAll("[data-discord-link]");
+
+function updateDiscordLinks() {
+  discordLinks.forEach((link) => {
+    if (DISCORD_URL) {
+      link.href = DISCORD_URL;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "Discord";
+    }
+  });
+}
+
+function renderTierProfile(key = "pvp") {
+  const profile = tierProfiles[key];
+
+  tierPanel.innerHTML = `
+    <div class="tier-head">
+      <div>
+        <h3>${profile.title}</h3>
+        <p>${profile.note}</p>
+      </div>
+      <div class="ign">IGN: ${profile.ign}</div>
+    </div>
+    <div class="tier-highlight">${profile.highlight}</div>
+    <div class="tier-meta">
+      <div class="tier-rank">
+        <span>Rank</span>
+        <strong>${profile.rank}</strong>
+      </div>
+      <div class="tier-rank">
+        <span>Overall</span>
+        <strong>${profile.score}</strong>
+      </div>
+    </div>
+    <div class="tier-grid">
+      ${profile.kits
+        .map(
+          (kit) => `
+            <article class="tier-kit ${kit.tier === "-" ? "is-empty" : ""}">
+              <span class="kit-icon">${kit.icon}</span>
+              <div>
+                <p>${kit.name}</p>
+                <strong>${kit.tier}</strong>
+              </div>
+            </article>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function setTheme(mode) {
+  root.classList.toggle("dark", mode === "dark");
+  themeIcon.textContent = mode === "dark" ? "Sun" : "Moon";
+  localStorage.setItem("vloaded-theme", mode);
+}
+
+function initTheme() {
+  const stored = localStorage.getItem("vloaded-theme");
+  const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+  setTheme(stored || preferred);
+}
+
+window.addEventListener("scroll", () => {
+  header.classList.toggle("is-scrolled", window.scrollY > 12);
+});
+
+menuToggle.addEventListener("click", () => {
+  const isOpen = menu.classList.toggle("is-open");
+  menu.setAttribute("aria-hidden", String(!isOpen));
+});
+
+menu.addEventListener("click", (event) => {
+  if (event.target.matches("a")) {
+    menu.classList.remove("is-open");
+    menu.setAttribute("aria-hidden", "true");
+  }
+});
+
+themeToggle.addEventListener("click", () => {
+  setTheme(root.classList.contains("dark") ? "light" : "dark");
+});
+
+tierTabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    tierTabs.forEach((item) => item.classList.remove("is-active"));
+    tab.classList.add("is-active");
+    renderTierProfile(tab.dataset.tierProfile);
+  });
+});
+
+function startHeroCanvas() {
+  const canvas = document.getElementById("hero-canvas");
+  const ctx = canvas.getContext("2d");
+  const colors = ["#b72163", "#4d39b8", "#12846f", "#b86f00", "#ffffff"];
+  let width = 0;
+  let height = 0;
+  let blocks = [];
+  let pointerX = 0.5;
+  let pointerY = 0.5;
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    blocks = Array.from({ length: Math.min(58, Math.floor(width / 18)) }, (_, index) => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      size: 6 + Math.random() * 18,
+      speed: 0.15 + Math.random() * 0.45,
+      drift: -0.25 + Math.random() * 0.5,
+      color: colors[index % colors.length],
+      alpha: 0.1 + Math.random() * 0.2,
+    }));
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, width, height);
+    const isDark = root.classList.contains("dark");
+    ctx.fillStyle = isDark ? "rgba(9, 8, 14, 0.66)" : "rgba(247, 248, 252, 0.72)";
+    ctx.fillRect(0, 0, width, height);
+
+    const offsetX = (pointerX - 0.5) * 28;
+    const offsetY = (pointerY - 0.5) * 20;
+
+    blocks.forEach((block) => {
+      block.y += block.speed;
+      block.x += block.drift;
+
+      if (block.y > height + 30) {
+        block.y = -30;
+        block.x = Math.random() * width;
+      }
+
+      ctx.save();
+      ctx.translate(block.x + offsetX, block.y + offsetY);
+      ctx.rotate((block.x + block.y) * 0.002);
+      ctx.globalAlpha = block.alpha;
+      ctx.fillStyle = block.color;
+      ctx.fillRect(-block.size / 2, -block.size / 2, block.size, block.size);
+      ctx.strokeStyle = isDark ? "rgba(255,255,255,0.22)" : "rgba(22,15,23,0.18)";
+      ctx.strokeRect(-block.size / 2, -block.size / 2, block.size, block.size);
+      ctx.restore();
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener("resize", resize);
+  window.addEventListener("pointermove", (event) => {
+    pointerX = event.clientX / Math.max(width, 1);
+    pointerY = event.clientY / Math.max(height, 1);
+  });
+
+  resize();
+  draw();
+}
+
+initTheme();
+updateDiscordLinks();
+renderTierProfile();
+startHeroCanvas();
+
+    </script>
   </body>
 </html>
+
