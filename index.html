@@ -254,8 +254,7 @@ button {
 
 .primary-link,
 .secondary-link,
-.contact-button,
-.audio-button {
+.contact-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -272,15 +271,10 @@ button {
 }
 
 .secondary-link,
-.contact-button,
-.audio-button {
+.contact-button {
   border: 1px solid var(--line-strong);
   background: var(--surface);
   color: var(--violet);
-}
-
-.audio-button {
-  cursor: pointer;
 }
 
 .scroll-cue {
@@ -731,12 +725,6 @@ button {
             <a class="primary-link" href="#tiers">View tiers</a>
             <a class="secondary-link" data-discord-link href="#contact">vLoaded</a>
             <a class="secondary-link" data-tiktok-link href="#contact">TikTok</a>
-            <button class="audio-button" type="button" data-music-toggle>
-              Play Imposter Syndrome
-            </button>
-            <button class="audio-button" type="button" data-sound-toggle>
-              Clicks On
-            </button>
           </div>
         </div>
         <a class="scroll-cue" href="#tiers" aria-label="Scroll to tiers">
@@ -794,7 +782,6 @@ button {
           <div>
             <p class="section-label">Contact</p>
             <h2>Let's talk</h2>
-            <p>Drop your Discord link here when you want this button connected.</p>
           </div>
           <div class="contact-actions">
             <a class="contact-button" data-discord-link href="#contact">Discord</a>
@@ -857,10 +844,8 @@ const tierPanel = document.querySelector("[data-tier-profile-panel]");
 const discordLinks = document.querySelectorAll("[data-discord-link]");
 const tiktokLinks = document.querySelectorAll("[data-tiktok-link]");
 const musicPlayer = document.querySelector("[data-music-player]");
-const musicToggle = document.querySelector("[data-music-toggle]");
-const soundToggle = document.querySelector("[data-sound-toggle]");
 let audioContext;
-let clickSoundsEnabled = true;
+let musicStarted = false;
 
 function updateDiscordLinks() {
   discordLinks.forEach((link) => {
@@ -896,10 +881,6 @@ function getAudioContext() {
 }
 
 function playCreamClick() {
-  if (!clickSoundsEnabled) {
-    return;
-  }
-
   const context = getAudioContext();
   const now = context.currentTime;
   const gain = context.createGain();
@@ -939,32 +920,29 @@ function setupClickSounds() {
       playCreamClick();
     }
   });
-
-  soundToggle.addEventListener("click", () => {
-    clickSoundsEnabled = !clickSoundsEnabled;
-    soundToggle.textContent = clickSoundsEnabled ? "Clicks On" : "Clicks Off";
-  });
 }
 
 function setupMusicPlayer() {
   musicPlayer.src = MUSIC_SRC;
   musicPlayer.volume = 0.42;
 
-  musicToggle.addEventListener("click", async () => {
+  async function startMusic() {
+    if (musicStarted) {
+      return;
+    }
+
     getAudioContext();
 
-    if (musicPlayer.paused) {
-      try {
-        await musicPlayer.play();
-        musicToggle.textContent = "Pause Imposter Syndrome";
-      } catch {
-        musicToggle.textContent = "Upload imposter-syndrome.mp3";
-      }
-    } else {
-      musicPlayer.pause();
-      musicToggle.textContent = "Play Imposter Syndrome";
+    try {
+      await musicPlayer.play();
+      musicStarted = true;
+    } catch {
+      musicStarted = false;
     }
-  });
+  }
+
+  document.addEventListener("pointerdown", startMusic);
+  document.addEventListener("keydown", startMusic);
 }
 
 function renderTierProfile(key = "pvp") {
