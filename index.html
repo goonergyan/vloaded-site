@@ -25,22 +25,6 @@
   --nav: rgba(247, 248, 252, 0.82);
 }
 
-html.dark {
-  --bg: #09080e;
-  --bg-soft: #10151a;
-  --surface: #14121c;
-  --text: #f4eff8;
-  --muted: #c9c0d0;
-  --rose: #ff5d9c;
-  --violet: #90a8ff;
-  --mint: #4ed1b5;
-  --amber: #ffc15a;
-  --line: #332b3f;
-  --line-strong: #554766;
-  --shadow: rgba(0, 0, 0, 0.28);
-  --nav: rgba(9, 8, 14, 0.82);
-}
-
 * {
   box-sizing: border-box;
 }
@@ -142,7 +126,6 @@ button {
   gap: 0.5rem;
 }
 
-.icon-button,
 .menu-button {
   display: inline-flex;
   align-items: center;
@@ -153,13 +136,6 @@ button {
   border-radius: 8px;
   background: color-mix(in srgb, var(--surface) 82%, transparent);
   cursor: pointer;
-}
-
-.icon-button {
-  padding: 0 0.6rem;
-  color: var(--violet);
-  font-size: 0.78rem;
-  font-weight: 800;
 }
 
 .menu-button {
@@ -278,7 +254,8 @@ button {
 
 .primary-link,
 .secondary-link,
-.contact-button {
+.contact-button,
+.audio-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -295,10 +272,15 @@ button {
 }
 
 .secondary-link,
-.contact-button {
+.contact-button,
+.audio-button {
   border: 1px solid var(--line-strong);
   background: var(--surface);
   color: var(--violet);
+}
+
+.audio-button {
+  cursor: pointer;
 }
 
 .scroll-cue {
@@ -534,43 +516,6 @@ button {
   font-weight: 950;
 }
 
-.tier-icon-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.7rem;
-  padding: 1rem 1rem 0;
-}
-
-.tier-token {
-  display: grid;
-  justify-items: center;
-  gap: 0.35rem;
-}
-
-.tier-token-icon {
-  display: block;
-  width: 58px;
-  height: 58px;
-  filter: drop-shadow(0 5px 0 rgba(0, 0, 0, 0.38));
-}
-
-.tier-token-icon svg {
-  width: 100%;
-  height: 100%;
-}
-
-.tier-token strong {
-  min-width: 38px;
-  padding: 0.18rem 0.35rem 0.25rem;
-  border-radius: 5px;
-  background: #050506;
-  color: #fff;
-  font-size: 0.86rem;
-  line-height: 1;
-  text-align: center;
-  text-shadow: 0 1px 0 #000;
-}
-
 .tier-meta {
   display: grid;
   grid-template-columns: 1fr;
@@ -635,17 +580,17 @@ button {
   opacity: 0.55;
 }
 
-.kit-icon {
+.kit-tag {
   display: grid;
   width: 42px;
   height: 42px;
   place-items: center;
-  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.28));
-}
-
-.kit-icon svg {
-  width: 100%;
-  height: 100%;
+  border: 1px solid color-mix(in srgb, var(--rose) 42%, var(--line));
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--rose);
+  font-size: 0.78rem;
+  font-weight: 950;
 }
 
 .tier-kit p {
@@ -668,6 +613,13 @@ button {
 }
 
 .contact-button {
+  justify-self: start;
+}
+
+.contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
   justify-self: start;
 }
 
@@ -745,6 +697,7 @@ button {
   </head>
   <body>
     <canvas id="hero-canvas" aria-hidden="true"></canvas>
+    <audio data-music-player preload="none" loop src="./imposter-syndrome.mp3"></audio>
 
     <header class="site-header" data-header>
       <a class="brand" href="#top" aria-label="vLoaded home">vLoaded</a>
@@ -754,9 +707,6 @@ button {
         <a href="#contact">Contact</a>
       </nav>
       <div class="header-actions">
-        <button class="icon-button" type="button" data-theme-toggle aria-label="Toggle theme">
-          <span data-theme-icon>Moon</span>
-        </button>
         <button class="menu-button" type="button" data-menu-toggle aria-label="Toggle menu">
           <span></span>
           <span></span>
@@ -780,6 +730,13 @@ button {
           <div class="hero-actions">
             <a class="primary-link" href="#tiers">View tiers</a>
             <a class="secondary-link" data-discord-link href="#contact">vLoaded</a>
+            <a class="secondary-link" data-tiktok-link href="#contact">TikTok</a>
+            <button class="audio-button" type="button" data-music-toggle>
+              Play Imposter Syndrome
+            </button>
+            <button class="audio-button" type="button" data-sound-toggle>
+              Clicks On
+            </button>
           </div>
         </div>
         <a class="scroll-cue" href="#tiers" aria-label="Scroll to tiers">
@@ -839,13 +796,18 @@ button {
             <h2>Let's talk</h2>
             <p>Drop your Discord link here when you want this button connected.</p>
           </div>
-          <a class="contact-button" data-discord-link href="#contact">vLoaded</a>
+          <div class="contact-actions">
+            <a class="contact-button" data-discord-link href="#contact">Discord</a>
+            <a class="contact-button" data-tiktok-link href="#contact">TikTok</a>
+          </div>
         </div>
       </section>
     </main>
 
     <script>
 const DISCORD_URL = "https://discord.gg/8msC3dRrae";
+const TIKTOK_URL = "https://www.tiktok.com/@.akyzu";
+const MUSIC_SRC = "./imposter-syndrome.mp3";
 
 const tierProfiles = {
   pvp: {
@@ -890,11 +852,15 @@ const root = document.documentElement;
 const header = document.querySelector("[data-header]");
 const menu = document.querySelector("[data-mobile-menu]");
 const menuToggle = document.querySelector("[data-menu-toggle]");
-const themeToggle = document.querySelector("[data-theme-toggle]");
-const themeIcon = document.querySelector("[data-theme-icon]");
 const tierTabs = document.querySelectorAll("[data-tier-profile]");
 const tierPanel = document.querySelector("[data-tier-profile-panel]");
 const discordLinks = document.querySelectorAll("[data-discord-link]");
+const tiktokLinks = document.querySelectorAll("[data-tiktok-link]");
+const musicPlayer = document.querySelector("[data-music-player]");
+const musicToggle = document.querySelector("[data-music-toggle]");
+const soundToggle = document.querySelector("[data-sound-toggle]");
+let audioContext;
+let clickSoundsEnabled = true;
 
 function updateDiscordLinks() {
   discordLinks.forEach((link) => {
@@ -907,87 +873,102 @@ function updateDiscordLinks() {
   });
 }
 
-function renderKitIcon(type) {
-  const icons = {
-    sword: `
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <circle cx="32" cy="32" r="27" fill="#132536" stroke="#b96e35" stroke-width="4"/>
-        <path d="M43 12 49 18 27 40 21 34Z" fill="#78d5ff"/>
-        <path d="M18 38 26 46" stroke="#f4a15c" stroke-width="5" stroke-linecap="round"/>
-        <path d="M22 34 30 42" stroke="#f7d6a7" stroke-width="4" stroke-linecap="round"/>
-      </svg>
-    `,
-    pot: `
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <circle cx="32" cy="32" r="27" fill="#211727" stroke="#b96e35" stroke-width="4"/>
-        <path d="M27 13h10v8l9 16c4 8-2 17-14 17s-18-9-14-17l9-16Z" fill="#fff4f2"/>
-        <path d="M24 37h24c2 10-4 17-16 17S14 47 24 37Z" fill="#f06a64"/>
-        <path d="M27 13h10" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-      </svg>
-    `,
-    pearl: `
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <circle cx="32" cy="32" r="27" fill="#101b1f" stroke="#b96e35" stroke-width="4"/>
-        <circle cx="32" cy="32" r="15" fill="#06b9a9"/>
-        <circle cx="27" cy="26" r="6" fill="#7ff9eb"/>
-        <path d="M21 42c9 7 24 1 26-12" fill="none" stroke="#005e5f" stroke-width="5" stroke-linecap="round"/>
-      </svg>
-    `,
-    crystal: `
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <path d="M32 5 57 19v28L32 61 7 47V19Z" fill="#111827" stroke="#f0a08e" stroke-width="5"/>
-        <path d="M32 14 41 28 56 30 44 40 47 55 32 47 17 55 20 40 8 30 23 28Z" fill="#ff3cff"/>
-        <path d="M32 20 38 31 50 33 40 40 42 51 32 45 22 51 24 40 14 33 26 31Z" fill="#7a5cff"/>
-        <circle cx="32" cy="35" r="7" fill="#fff"/>
-      </svg>
-    `,
-    cube: `
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <path d="M32 6 56 18v30L32 62 8 48V18Z" fill="#12111d" stroke="#f0a08e" stroke-width="5"/>
-        <path d="M32 13 48 21 32 30 16 21Z" fill="#21143d"/>
-        <path d="M16 22 32 31v20L16 42Z" fill="#0b0918"/>
-        <path d="M48 22 32 31v20l16-9Z" fill="#171025"/>
-      </svg>
-    `,
-    scroll: `
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <path d="M32 6 56 18v30L32 62 8 48V18Z" fill="#17222a" stroke="#f0a08e" stroke-width="5"/>
-        <path d="M22 16h20l5 7v28H22Z" fill="#f0d39a"/>
-        <path d="M42 16v8h7" fill="#6bbbd4"/>
-        <path d="M27 29h15M27 36h13M27 43h10" stroke="#5f4429" stroke-width="3" stroke-linecap="round"/>
-      </svg>
-    `,
-    axe: `
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <path d="M32 6 56 18v30L32 62 8 48V18Z" fill="#17222a" stroke="#f0a08e" stroke-width="5"/>
-        <path d="M21 16h22l7 8v20l-10 8H21Z" fill="#d28a48"/>
-        <path d="M27 21h14l4 5v11l-6 5H27Z" fill="#6fb9c8"/>
-        <path d="M18 48 46 20" stroke="#87f1e7" stroke-width="5" stroke-linecap="round"/>
-        <path d="M38 17h13v13" fill="none" stroke="#d9f7ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M24 26h12M24 34h11M24 42h9" stroke="#5f4429" stroke-width="3" stroke-linecap="round"/>
-      </svg>
-    `,
-    heart: `
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <path d="M32 6 56 18v30L32 62 8 48V18Z" fill="#171c1f" stroke="#f0a08e" stroke-width="5"/>
-        <path d="M32 50 15 33c-9-10 3-24 17-12 14-12 26 2 17 12Z" fill="#fa1f3d"/>
-        <path d="M22 25c4-4 9-3 12 1" fill="none" stroke="#ff8697" stroke-width="4" stroke-linecap="round"/>
-      </svg>
-    `,
-    empty: `
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <path d="M32 6 56 18v30L32 62 8 48V18Z" fill="#141820" stroke="#46515d" stroke-width="3"/>
-        <text x="32" y="40" text-anchor="middle" fill="#697786" font-size="28" font-weight="900">?</text>
-      </svg>
-    `,
-  };
+function updateTikTokLinks() {
+  tiktokLinks.forEach((link) => {
+    link.href = TIKTOK_URL;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = "TikTok";
+  });
+}
 
-  return icons[type] || icons.empty;
+function getAudioContext() {
+  if (!audioContext) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    audioContext = new AudioContextClass();
+  }
+
+  if (audioContext.state === "suspended") {
+    audioContext.resume();
+  }
+
+  return audioContext;
+}
+
+function playCreamClick() {
+  if (!clickSoundsEnabled) {
+    return;
+  }
+
+  const context = getAudioContext();
+  const now = context.currentTime;
+  const gain = context.createGain();
+  const filter = context.createBiquadFilter();
+  const low = context.createOscillator();
+  const high = context.createOscillator();
+
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(1050, now);
+  filter.Q.setValueAtTime(0.6, now);
+
+  low.type = "sine";
+  high.type = "triangle";
+  low.frequency.setValueAtTime(185, now);
+  low.frequency.exponentialRampToValueAtTime(118, now + 0.09);
+  high.frequency.setValueAtTime(430, now);
+  high.frequency.exponentialRampToValueAtTime(255, now + 0.08);
+
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.075, now + 0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+
+  low.connect(filter);
+  high.connect(filter);
+  filter.connect(gain);
+  gain.connect(context.destination);
+
+  low.start(now);
+  high.start(now);
+  low.stop(now + 0.13);
+  high.stop(now + 0.11);
+}
+
+function setupClickSounds() {
+  document.addEventListener("pointerdown", (event) => {
+    if (event.target.closest("a, button")) {
+      playCreamClick();
+    }
+  });
+
+  soundToggle.addEventListener("click", () => {
+    clickSoundsEnabled = !clickSoundsEnabled;
+    soundToggle.textContent = clickSoundsEnabled ? "Clicks On" : "Clicks Off";
+  });
+}
+
+function setupMusicPlayer() {
+  musicPlayer.src = MUSIC_SRC;
+  musicPlayer.volume = 0.42;
+
+  musicToggle.addEventListener("click", async () => {
+    getAudioContext();
+
+    if (musicPlayer.paused) {
+      try {
+        await musicPlayer.play();
+        musicToggle.textContent = "Pause Imposter Syndrome";
+      } catch {
+        musicToggle.textContent = "Upload imposter-syndrome.mp3";
+      }
+    } else {
+      musicPlayer.pause();
+      musicToggle.textContent = "Play Imposter Syndrome";
+    }
+  });
 }
 
 function renderTierProfile(key = "pvp") {
   const profile = tierProfiles[key];
-  const earnedKits = profile.kits.filter((kit) => kit.tier !== "-");
 
   tierPanel.innerHTML = `
     <div class="tier-head">
@@ -998,18 +979,6 @@ function renderTierProfile(key = "pvp") {
       <div class="ign">IGN: ${profile.ign}</div>
     </div>
     <div class="tier-highlight">${profile.highlight}</div>
-    <div class="tier-icon-strip" aria-label="${profile.title} earned tier icons">
-      ${earnedKits
-        .map(
-          (kit) => `
-            <article class="tier-token">
-              <span class="tier-token-icon">${renderKitIcon(kit.icon)}</span>
-              <strong>${kit.tier}</strong>
-            </article>
-          `,
-        )
-        .join("")}
-    </div>
     <div class="tier-meta">
       <div class="tier-rank">
         <span>Rank</span>
@@ -1025,7 +994,7 @@ function renderTierProfile(key = "pvp") {
         .map(
           (kit) => `
             <article class="tier-kit ${kit.tier === "-" ? "is-empty" : ""}">
-              <span class="kit-icon">${renderKitIcon(kit.icon)}</span>
+              <span class="kit-tag">${kit.name.slice(0, 2).toUpperCase()}</span>
               <div>
                 <p>${kit.name}</p>
                 <strong>${kit.tier}</strong>
@@ -1036,20 +1005,6 @@ function renderTierProfile(key = "pvp") {
         .join("")}
     </div>
   `;
-}
-
-function setTheme(mode) {
-  root.classList.toggle("dark", mode === "dark");
-  themeIcon.textContent = mode === "dark" ? "Sun" : "Moon";
-  localStorage.setItem("vloaded-theme", mode);
-}
-
-function initTheme() {
-  const stored = localStorage.getItem("vloaded-theme");
-  const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
-  setTheme(stored || preferred);
 }
 
 window.addEventListener("scroll", () => {
@@ -1066,10 +1021,6 @@ menu.addEventListener("click", (event) => {
     menu.classList.remove("is-open");
     menu.setAttribute("aria-hidden", "true");
   }
-});
-
-themeToggle.addEventListener("click", () => {
-  setTheme(root.classList.contains("dark") ? "light" : "dark");
 });
 
 tierTabs.forEach((tab) => {
@@ -1112,8 +1063,7 @@ function startHeroCanvas() {
 
   function draw() {
     ctx.clearRect(0, 0, width, height);
-    const isDark = root.classList.contains("dark");
-    ctx.fillStyle = isDark ? "rgba(9, 8, 14, 0.66)" : "rgba(247, 248, 252, 0.72)";
+    ctx.fillStyle = "rgba(247, 248, 252, 0.72)";
     ctx.fillRect(0, 0, width, height);
 
     const offsetX = (pointerX - 0.5) * 28;
@@ -1134,7 +1084,7 @@ function startHeroCanvas() {
       ctx.globalAlpha = block.alpha;
       ctx.fillStyle = block.color;
       ctx.fillRect(-block.size / 2, -block.size / 2, block.size, block.size);
-      ctx.strokeStyle = isDark ? "rgba(255,255,255,0.22)" : "rgba(22,15,23,0.18)";
+      ctx.strokeStyle = "rgba(22,15,23,0.18)";
       ctx.strokeRect(-block.size / 2, -block.size / 2, block.size, block.size);
       ctx.restore();
     });
@@ -1152,8 +1102,10 @@ function startHeroCanvas() {
   draw();
 }
 
-initTheme();
 updateDiscordLinks();
+updateTikTokLinks();
+setupClickSounds();
+setupMusicPlayer();
 renderTierProfile();
 startHeroCanvas();
 
