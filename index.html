@@ -858,10 +858,10 @@ const tierProfiles = {
     kits: [
       { name: "Crystal", tier: "LT3", icon: "crystal" },
       { name: "NethPot", tier: "LT3", icon: "cube" },
-      { name: "UHC", tier: "LT3", icon: "scroll" },
-      { name: "SMP", tier: "LT3", icon: "heart" },
-      { name: "Pearl", tier: "LT3", icon: "pearl" },
-      { name: "Axe", tier: "-", icon: "empty" },
+      { name: "Axe", tier: "LT3", icon: "axe" },
+      { name: "UHC", tier: "LT3", icon: "heart" },
+      { name: "SMP", tier: "LT3", icon: "pearl" },
+      { name: "Sword", tier: "-", icon: "empty" },
       { name: "Mace", tier: "-", icon: "empty" },
       { name: "Cart", tier: "-", icon: "empty" },
     ],
@@ -876,7 +876,7 @@ const tierProfiles = {
     kits: [
       { name: "Sword", tier: "HT3", icon: "sword" },
       { name: "Pot", tier: "LT3", icon: "pot" },
-      { name: "Pearl", tier: "LT3", icon: "pearl" },
+      { name: "SMP", tier: "LT3", icon: "pearl" },
       { name: "Crystal", tier: "-", icon: "empty" },
       { name: "NethPot", tier: "-", icon: "empty" },
       { name: "Axe", tier: "-", icon: "empty" },
@@ -955,6 +955,16 @@ function renderKitIcon(type) {
         <path d="M22 16h20l5 7v28H22Z" fill="#f0d39a"/>
         <path d="M42 16v8h7" fill="#6bbbd4"/>
         <path d="M27 29h15M27 36h13M27 43h10" stroke="#5f4429" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    `,
+    axe: `
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M32 6 56 18v30L32 62 8 48V18Z" fill="#17222a" stroke="#f0a08e" stroke-width="5"/>
+        <path d="M21 16h22l7 8v20l-10 8H21Z" fill="#d28a48"/>
+        <path d="M27 21h14l4 5v11l-6 5H27Z" fill="#6fb9c8"/>
+        <path d="M18 48 46 20" stroke="#87f1e7" stroke-width="5" stroke-linecap="round"/>
+        <path d="M38 17h13v13" fill="none" stroke="#d9f7ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M24 26h12M24 34h11M24 42h9" stroke="#5f4429" stroke-width="3" stroke-linecap="round"/>
       </svg>
     `,
     heart: `
