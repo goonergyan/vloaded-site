@@ -71,6 +71,35 @@ button {
   pointer-events: none;
 }
 
+.audio-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 100svh;
+  border: 0;
+  background:
+    linear-gradient(90deg, transparent 0 23px, rgba(77, 57, 184, 0.08) 24px),
+    linear-gradient(0deg, transparent 0 23px, rgba(18, 132, 111, 0.07) 24px),
+    rgba(247, 248, 252, 0.96);
+  background-size: 24px 24px;
+  color: var(--rose);
+  cursor: pointer;
+  font-family: "Brush Script MT", "Segoe Script", cursive;
+  font-size: clamp(3.5rem, 13vw, 9rem);
+  line-height: 1;
+  text-shadow: 0 14px 42px rgba(183, 33, 99, 0.22);
+  transition: opacity 220ms ease, visibility 220ms ease;
+}
+
+.audio-gate.is-hidden {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .site-header {
   position: fixed;
   top: 0;
@@ -691,7 +720,10 @@ button {
   </head>
   <body>
     <canvas id="hero-canvas" aria-hidden="true"></canvas>
-    <audio data-music-player preload="none" loop src="./Impostor Syndrome - Sidney Gish.mp3"></audio>
+    <audio data-music-player preload="auto" loop playsinline src="./Impostor%20Syndrome%20-%20Sidney%20Gish.mp3"></audio>
+    <button class="audio-gate" type="button" data-audio-gate>
+      Enter vLoaded
+    </button>
 
     <header class="site-header" data-header>
       <a class="brand" href="#top" aria-label="vLoaded home">vLoaded</a>
@@ -794,7 +826,7 @@ button {
     <script>
 const DISCORD_URL = "https://discord.gg/8msC3dRrae";
 const TIKTOK_URL = "https://www.tiktok.com/@.akyzu";
-const MUSIC_SRC = "./Impostor Syndrome - Sidney Gish.mp3";
+const MUSIC_SRC = "./Impostor%20Syndrome%20-%20Sidney%20Gish.mp3";
 
 const tierProfiles = {
   pvp: {
@@ -844,6 +876,7 @@ const tierPanel = document.querySelector("[data-tier-profile-panel]");
 const discordLinks = document.querySelectorAll("[data-discord-link]");
 const tiktokLinks = document.querySelectorAll("[data-tiktok-link]");
 const musicPlayer = document.querySelector("[data-music-player]");
+const audioGate = document.querySelector("[data-audio-gate]");
 let audioContext;
 let musicStarted = false;
 
@@ -927,7 +960,8 @@ function setupMusicPlayer() {
   musicPlayer.volume = 0.42;
 
   async function startMusic() {
-    if (musicStarted) {
+    if (musicStarted || !musicPlayer.paused) {
+      audioGate.classList.add("is-hidden");
       return;
     }
 
@@ -936,12 +970,16 @@ function setupMusicPlayer() {
     try {
       await musicPlayer.play();
       musicStarted = true;
+      audioGate.classList.add("is-hidden");
     } catch {
       musicStarted = false;
     }
   }
 
+  audioGate.addEventListener("click", startMusic);
+  document.addEventListener("click", startMusic);
   document.addEventListener("pointerdown", startMusic);
+  document.addEventListener("touchstart", startMusic);
   document.addEventListener("keydown", startMusic);
 }
 
